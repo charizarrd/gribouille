@@ -1,0 +1,5 @@
+bookmarks or something
+
+animation with html5 and stuff:
+http://www.skjapp.com/html5-canvas-animation-using-animation-timing-api-with-fps-counting/#.UISr1fnBJrV
+http://paulirish.com/2011/requestanimationframe-for-smart-animating/
