@@ -1,0 +1,453 @@
+<html>
+<head>
+<title>video magnification</title>
+<style>
+	body {
+        color:black;
+        font-family:arial,helvetica, sans-serif;
+        font-size:12px;
+        margin:20px;
+        padding:0px;
+      }
+    .centerbody {
+		margin-left:auto; 
+		margin-right:auto;
+		width:1100px; 
+		height:575px;
+		border: 10px solid #b3c9ce;
+		border-radius:5px;
+		padding:0px;
+		box-shadow: 0px 3px 7px #506987;
+	}
+	.mainbody{
+		margin-left:auto; 
+		margin-right:auto;
+		width:1100px; 
+		height:550px;
+		border: 0px solid #C0D9D9;
+		border-radius:0px;
+		padding:0px;
+		box-shadow: 0px 3px 7px #506987;
+	}
+	.header{
+		background-color: #b3c9ce;
+		height:25px;
+	}
+
+	.left{
+		float:left; 
+		width:800px;
+		margin:20px;
+		
+	}
+
+	.right{
+		float:left; 
+		width:210px;
+		margin:20px;
+	}
+</style>
+</head>
+<body>
+<div class="centerbody">
+
+<div class="header">
+<font size="1"><strong>video magnification visualization</strong></font> </div>
+
+<div class="mainbody">
+
+<div class="left">
+<canvas id="graph" width="800" height="500" onclick="mouseclicked()" style="border: 0px solid #000000;"></canvas>
+<!--add onclick="mouseclicked()" if need be-->
+</div>
+
+<div class="right">
+graph function 
+<select id="dropdown" onChange="changeLine(this.value)">
+	<option value="gauss">gauss</option>
+	<option value="sine">sine</option>
+	<option value="ramp">ramp</option>
+	<option value="data">data</option>
+</select> 
+<br/><br/>
+velocity is &nbsp <span id="vel">6</span>
+<br/>
+0<input id="velocity" type="range" min="0" max="15" step="1" value="6" onchange="changeV(this.value)"> </input>15
+<br/><br/><br/>
+alpha is &nbsp <span id="alp">1</span>
+<br/>
+0<input id="alpha" type="range" min="0" max="5" step=".1" value="2" onchange="changeA(this.value)"> </input>5
+<br/><br/><br/>
+
+<input type="checkbox" name="opt" onclick="changeDisp(this.value)" value=0>graph lines</input>
+<br/>
+<input type="checkbox" name="opt" onclick="changeDisp(this.value)" value=1 checked>graph points</input>
+</br>
+<input type="checkbox" name="opt" onclick="changeDisp(this.value)" value=2>clicking interface</input>
+
+<br/><br/><br/>
+<small>
+pixel point data from <a href="baby3.png">this</a> picture</small>
+<br/><br/><br/>
+<b>LEGEND</b></br>
+<font color="black">graph at t</font><br/>
+<font color="blue">graph at t+dt</font><br/>
+<font color="red">graph at t+dt plus &alpha; * difference</font>
+<br/><br/>
+<small>vertical lines represent difference between y values of the graphs</small>
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+	var cgraph=document.getElementById("graph");
+	var contextgraph=cgraph.getContext('2d');
+	
+	var whichL="gauss";
+	var velocity=6;
+	var alpha=2;
+	
+	var dataSine=new Array();
+	var dataRamp=new Array();
+	var dataPoints=new Array();
+	var dataGauss=new Array();
+	
+	var currentData=new Array();
+
+	var ymax=255
+	var ymin=0;
+	var xmin=0;
+	var xmax=500;
+	var yscale=(cgraph.height-50)/ymax;
+	var xscale=(cgraph.width-50)/xmax;
+	var mousex,mousey,clickx,clicky;
+	
+	var dOffset=new Array();
+	var dA=new Array();
+	
+	var o=50;
+	
+	var graphLines=false;
+	var graphPoints=true;
+	var clicking=false;
+	
+	var horizscale;
+	
+	window.onload=function(){
+		//alert("gonna make data");
+		makeData();
+		//alert("data made");
+		//graphData(dataSine,"black");
+		//graphOffset(dataSine);
+	};
+	
+	function changeLine(val){
+		whichL=val;
+		currentData.length=0;
+		contextgraph.clearRect(0,0,1000,1000);
+		drawAxis(contextgraph,0,ymax,xmax,0,"space","value");
+		if (whichL=="sine"){
+			currentData=dataSine.slice();
+			//graphData(currentData,"black");
+			//graphOffset(currentData);
+		}
+		else if (whichL=="ramp"){
+			currentData=dataRamp.slice();
+			//graphData(currentData,"black");
+			//graphOffset(currentData);
+		}
+		else if (whichL=="data"){
+			currentData=dataPoints.slice();
+			//graphData(currentData,"black");
+			//graphOffset(currentData);
+		}
+		else if (whichL=="gauss"){
+			currentData=dataGauss.slice();
+			//graphData(currentData,"black");
+			//graphOffset(currentData);
+		}
+		graphOffset(currentData);
+		graphAmplify(currentData,dOffset);
+		
+		if(graphLines){
+			graphData(currentData,"black");
+			graphData(dA,"red");
+			graphData(dOffset,"blue");
+		}
+		
+		if(clicking){
+			drawVertical(clickx,1);
+			drawHorizontal();
+		}
+		
+		if(graphPoints){
+			for(var i=0;i<500;i+=5){
+					drawVertical(parseFloat(50+i*xscale),.5);
+					drawDataPoints(50+i*xscale);
+			}
+		}
+	}
+	
+	function changeDisp(num){
+		//0 is graph lines, 1 is graph points, 2 is clicking interface
+		if (num==0){
+			if (graphLines){graphLines=false;}
+			else {graphLines=true;}
+		}
+		if (num==1){
+			if (graphPoints){graphPoints=false;}
+			else {graphPoints=true;}
+		}
+		if (num==2){
+			if (clicking){clicking=false;}
+			else {clicking=true;}
+		}
+		changeLine(whichL);
+	}
+	
+	function changeV(v){
+		velocity=parseInt(v);
+		document.getElementById("vel").innerHTML=velocity;
+		changeLine(whichL);
+	}
+	
+	function changeA(a){
+		alpha=Math.round(parseFloat(a)*100000)/100000;
+		document.getElementById("alp").innerHTML=alpha;
+		changeLine(whichL);
+	}
+	
+	function makeData(){
+		var m=300
+		var s=60
+		for(var i=0;i<(xmax+o+1);i++){
+			if (i<((xmax+o+1)/2)){dataRamp.push(i*.5);}
+			else {dataRamp.push(((xmax+o+1)/2)-i*(.5));}
+			
+			dataSine.push(Math.round((Math.sin(i/o)+1.2)*100000)/1000);
+			
+			var temp=Math.exp(-(Math.pow(i-m,2)/(2*s*s)))/(s*Math.pow(2*Math.PI,.5))
+			dataGauss.push(temp*30000);
+		}
+		var img=new Image();
+		img.src="baby3.png";
+		img.onload=function(){
+			var w=img.width*((xmax+o+1)/img.width);
+			var h=img.height*((xmax+o+1)/img.width);
+			contextgraph.drawImage(img,0,0,w,h);
+			var data=contextgraph.getImageData(0,0,w,h);
+			var redD=new Array();
+			var y=230;
+			for (var x=0; x<data.width; x++){
+				//index of pixel in array
+				var idx=(x+y*w)*4;
+				//rgb values
+				var r=data.data[idx+0];
+				redD.push(r);
+			}
+			dataPoints=redD.slice();
+			/*for(var i=0;i<111;i++){
+				dataPoints.push(Math.floor(Math.random()*200+1)+25);
+			}*/
+			//alert(dataPoints);
+			contextgraph.clearRect(0,0,1000,1000);
+			drawAxis(contextgraph,0,ymax,xmax,0,"space","value");
+			//graphData(dataSine,"black");
+			//graphOffset(dataSine);
+			changeLine("gauss");
+		};
+	}
+	
+	//graphs points
+	function graphData(d,color){
+		//alert("graphing "+whichL);
+		contextgraph.strokeStyle=color;
+		contextgraph.lineWidth=1;
+		contextgraph.beginPath();
+		contextgraph.moveTo(50,ymax*yscale-d[o]*yscale);
+		//alert(entries[100][34]);
+		//alert(xmax+","+xscale+","+ymax+","+yscale);
+		for(var i=(o+1);i<(xmax+o+1);i++){
+			var y=d[i];
+			contextgraph.lineTo(((i-o)*xscale)+50,ymax*yscale-y*yscale);
+			//if(i%100==0){alert(y+", "+i*xscale);}
+		}
+		//alert(ymax+","+yscale+","+xmax+", "+xscale+", "+entries[xmax-1][clicky]);
+		contextgraph.stroke();
+	}
+	
+	function graphOffset(d){
+		dOffset.length=0;
+		//alert(velocity+","+(d.length+velocity));
+		for(var i=velocity;i<(d.length+velocity);i++){
+			dOffset[i]=d[i-velocity];
+		}
+		
+	}
+	
+	function graphAmplify(d,dO){
+		dA.length=0;
+		for(var i=velocity;i<(d.length+velocity);i++){
+			dA[i]=dOffset[i]+alpha*(dOffset[i]-d[i])
+		}
+		
+	
+	}
+	
+	function drawAxis(con,ymin,ymax,xmax,xmin,xlabel,ylabel){
+		con.save();
+		con.strokeStyle="black";
+		//draw y axis
+		con.beginPath();
+		con.moveTo(50,0);
+		con.lineTo(50,con.canvas.height-50);
+		con.stroke();
+		
+		//draw x axis
+		con.beginPath();
+		con.moveTo(50,con.canvas.height-50);
+		con.lineTo(con.canvas.width,con.canvas.height-50);
+		con.stroke();
+		
+		con.font="11px sans-serif";
+		con.fillStyle="#000000";
+		//label y axis scale
+		con.textAlign="right";
+		for(var j=0;j<11;j++){
+			var temp=ymax-(j)*((ymax-ymin)/10)
+			temp=Math.round(temp*100)/100;
+			con.fillText(temp,45,j*((con.canvas.height-50)/10)+10);
+		}
+		//label x axis scale
+		con.textAlign="left";
+		for(var k=0;k<11;k++){
+			var temp=xmin+k*((xmax-xmin)/10);
+			temp=Math.round(temp*100)/100;
+			con.fillText(temp,k*((con.canvas.width-60)/10)+40,con.canvas.height-40);
+		}
+		
+		//label axis with names
+		con.font="13px sans-serif";
+		con.textAlign="center";
+		con.fillText(xlabel,(con.canvas.width-5)/2,con.canvas.height-20);
+		con.translate(10,(con.canvas.height-50)/2);
+		con.rotate(-Math.PI/2);
+		con.fillText(ylabel,0,0);
+		con.restore();
+	}
+	
+	function mmouse(event){
+		mousex=event.pageX-cgraph.offsetLeft;
+		mousey=event.pageY-cgraph.offsetTop;
+		if(mousex>50){drawPoint();}
+	}
+	cgraph.onmousemove=mmouse;
+	
+	//draws point where your mouse is on the original graph
+	function drawPoint(){
+		changeLine(whichL);
+		contextgraph.fillStyle="lime";
+		var x=(parseInt(mousex)-50)/xscale+o
+		var y=currentData[parseInt(x)]
+		contextgraph.fillRect((parseInt(x)-o)*xscale-2+50,(ymax*yscale-y*yscale)-2,4,4);
+		//contextgraph.fillStyle="green";
+		//contextgraph.fillRect(mousex-2,mousey-2,4,4);
+		//cgraph.fill();
+	}
+	
+	function mouseclicked(){
+		clickx=mousex
+		clicky=mousey;
+		if(clicking){
+			drawPoint();}
+	}
+	
+	//show vertical difference between d and dOffset (and dAlpha?)
+	function drawVertical(xcoord, a){
+		contextgraph.lineWidth=1;
+		contextgraph.globalAlpha=a;
+		contextgraph.strokeStyle="blue";
+		contextgraph.beginPath();
+		var x=((xcoord)-50)/xscale+o
+		var y=currentData[parseInt(x)]
+		contextgraph.moveTo(((x)-o)*xscale+50,ymax*yscale-y*yscale);
+		y=dOffset[parseInt(x)];
+		contextgraph.lineTo(((x)-o)*xscale+50,ymax*yscale-y*yscale);
+		contextgraph.stroke();
+		
+		contextgraph.strokeStyle="red";
+		contextgraph.beginPath();
+		
+		contextgraph.moveTo(((x)-o)*xscale+50,ymax*yscale-y*yscale);
+		y=dA[parseInt(x)]
+		contextgraph.lineTo(((x)-o)*xscale+50,ymax*yscale-y*yscale);
+		contextgraph.stroke();
+		contextgraph.globalAlpha=1;
+	}
+	
+	function drawDataPoints(xcoord){
+		contextgraph.globalAlpha=1;
+		contextgraph.fillStyle="black";
+		var x=((xcoord)-50)/xscale+o
+		var y=currentData[(x)]
+		contextgraph.fillRect(((x)-o)*xscale+50-2,ymax*yscale-y*yscale-2,4,4)
+		
+		contextgraph.fillStyle="red";
+		y=dA[(x)]
+		contextgraph.fillRect(((x)-o)*xscale+50-2,ymax*yscale-y*yscale-2,4,4);
+		
+		y=dOffset[parseInt(x)];
+		contextgraph.fillStyle="blue";
+		contextgraph.fillRect(((x)-o)*xscale+50-2,ymax*yscale-y*yscale-2,4,4)
+		
+		contextgraph.fill();
+	}
+	
+	
+	function drawHorizontal(){
+		contextgraph.strokeStyle="blue";
+		contextgraph.beginPath();
+		var x=(parseInt(clickx)-50)/xscale+o
+		var y=currentData[parseInt(x)]
+		contextgraph.moveTo((parseInt(x)-o)*xscale+50,ymax*yscale-y*yscale);
+		//y=parseInt((ymax*yscale-parseInt(clicky))/yscale);
+		x=parseInt((parseInt(clickx)-50)/xscale+o)
+		x=findNextXgivenY(x,y,dOffset);
+		//alert(x);
+		contextgraph.lineTo((x-o)*xscale+50,ymax*yscale-y*yscale);
+		contextgraph.stroke();
+	}
+	
+	function findNextXgivenY(x,y,d){
+		var finalX
+		//alert(x+","+y+","+d[x]);
+		for(var i=x;i<(xmax+1+o);i++){
+			if(Math.abs(d[i]-y)<.5){
+				//alert(d[i]+","+i);
+				finalX=i;
+				break;
+			}
+		}
+		//alert("finalx: "+finalX);
+		return finalX;
+	}
+	
+	function legend(){
+		contextgraph.font="10pt arial";
+		contextgraph.fillStyle="black";
+		contextgraph.fillText("graph at time t",60,20);
+		contextgraph.fillStyle="blue";
+		contextgraph.fillText("graph at time t+dt",60,35);
+		contextgraph.fillStyle="red";
+		contextgraph.fillText("graph of difference amplified by alpha",60,50);
+		contextgraph.fill();
+	}
+	
+	/*
+	Also Michael is suggesting to have a "spatial frequency" slider that would change everything by scaling it horizontally. (i.e. take f(x/a) where a is the scale). This would also allow us to explore the right setting for the data. You can use linear interpolation for it, now that you've smoothed it well with bicubic. Or you can be motivated and implement your own cubic reconstruction (not that bad). 
+	*/
+</script>
+
+
+</body>
+</html>
