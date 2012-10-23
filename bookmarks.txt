@@ -3,3 +3,12 @@ bookmarks or something
 animation with html5 and stuff:
 http://www.skjapp.com/html5-canvas-animation-using-animation-timing-api-with-fps-counting/#.UISr1fnBJrV
 http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+
+
+TODO/suggestions
+10/23
+for a given time frame, draw all data gotten up to that point (instead of just adding frames at each next time step)
+so at each time step it just redraws everything + new stroke
+it's wasteful but it'll be easier to do timing that way, and then we can optimize that
+
+also look into audio
