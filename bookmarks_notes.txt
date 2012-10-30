@@ -4,3 +4,7 @@ animation with html5 and stuff:
 http://www.skjapp.com/html5-canvas-animation-using-animation-timing-api-with-fps-counting/#.UISr1fnBJrV
 http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 http://www.html5canvastutorials.com/advanced/html5-canvas-oscillation-animation/
+
+http://www.html5rocks.com/en/tutorials/file/filesystem/
+http://stackoverflow.com/questions/6861180/how-can-you-read-a-file-line-by-line-in-javascript
+
