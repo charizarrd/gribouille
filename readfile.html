@@ -1,0 +1,83 @@
+<html>
+<head>
+
+</head>
+
+<body>
+<span id = "test"></span>
+<span id = "test2"></span>
+
+<script type="text/javascript">
+var lines = new Array();
+//var patterns = [numberofPrimitives=][0-9]+, [numberofVertices=][0-9]+, [0-9.]+[,], [0-9.]+[;], [0-9.]+;
+var dataPoints = new Array();
+
+function getData(file) {
+	lines = file.responseText.split("\n").slice();
+	document.getElementById("test").innerHTML=(lines.length);
+	matcher();
+//	document.getElementById("test").innerHTML=(dataPoints.length);
+}
+
+function matcher() {
+var str = "80.273655, 197.981793;  1.013901";
+var patt1 = /[0-9.]+[,]/i;
+			
+document.getElementById("test2").innerHTML=str.match(patt1);
+
+/*function matcher() {
+	for (int i = 0; i < lines.length; i++) {
+		var str = lines[i];
+		var x = null;
+		var y = null;
+		var time = null;
+		
+		for (int j = 0; j < patterns.length; j++) {
+			var patt = new RegExp(patterns[j], ig);
+			var m = str.match(patt);
+			
+			if (m != null) {
+				switch(j) {
+				case 2:
+					x = m.substring(0, m.length - 1);
+					break;
+				case 3:
+					y = m.substring(0, m.length - 1);
+					break;
+				case 4:
+					time = m.substring(0);
+					break;
+				}
+			}
+		}
+		
+		dataPoints.push((x, y, time));
+	}
+}*/
+
+}
+
+function readFile(url, callback) {
+	var txtFile = new XMLHttpRequest();
+	txtFile.open("GET", url, true);	
+	txtFile.setRequestHeader('User-Agent','XMLHTTP/1.0');
+	txtFile.onreadystatechange = function() {
+		if (txtFile.readyState != 4) return;  // document is ready to parse.
+		if (txtFile.status != 200 && txtFile.status != 304) return;  // file is found
+		
+		callback(txtFile);
+	}
+	if (txtFile.readyState == 4) return;
+	txtFile.send(null);
+}
+
+window.onload = function() {
+	readFile("test.lec", getData);
+};
+
+
+</script>
+
+</body>
+
+</html>
