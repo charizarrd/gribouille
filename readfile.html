@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
 var lines = new Array();
-//var patterns = [numberofPrimitives=][0-9]+, [numberofVertices=][0-9]+, [0-9.]+[,], [0-9.]+[;], [0-9.]+;
+var patterns = [/[numberofPrimitives=][0-9]+/ig, /[numberofVertices=][0-9]+/ig, /[0-9.]+/ig];
 var dataPoints = new Array();
 
 function getData(file) {
@@ -20,41 +20,30 @@ function getData(file) {
 }
 
 function matcher() {
-var str = "80.273655, 197.981793;  1.013901";
-var patt1 = /[0-9.]+[,]/i;
-			
-document.getElementById("test2").innerHTML=str.match(patt1);
-
-/*function matcher() {
-	for (int i = 0; i < lines.length; i++) {
+	var str = "80.273655, 197.981793;  1.013901";
+	
+	for (i = 0; i < lines.length; i++) {
 		var str = lines[i];
 		var x = null;
 		var y = null;
 		var time = null;
 		
-		for (int j = 0; j < patterns.length; j++) {
-			var patt = new RegExp(patterns[j], ig);
-			var m = str.match(patt);
+		for (j = 0; j < patterns.length; j++) {
+			var m = str.match(patterns[j]);
 			
-			if (m != null) {
-				switch(j) {
-				case 2:
-					x = m.substring(0, m.length - 1);
-					break;
-				case 3:
-					y = m.substring(0, m.length - 1);
-					break;
-				case 4:
-					time = m.substring(0);
-					break;
-				}
+			if (m != null && j == 2) {
+				x = m[0];
+				y = m[1];
+				time = m[2];
 			}
 		}
 		
-		dataPoints.push((x, y, time));
+		if (time != null) {
+			dataPoints.push((x, y, time));
+		}
 	}
-}*/
-
+	
+	document.getElementById("test2").innerHTML=dataPoints.length;
 }
 
 function readFile(url, callback) {
