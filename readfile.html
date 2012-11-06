@@ -12,6 +12,8 @@ var lines = new Array();
 var patterns = [/[numberofPrimitives=][0-9]+/ig, /[numberofVertices=][0-9]+/ig, /[0-9.]+/ig];
 var dataPoints = new Array();
 
+
+
 function getData(file) {
 	lines = file.responseText.split("\n").slice();
 	document.getElementById("test").innerHTML=(lines.length);
@@ -53,12 +55,14 @@ function readFile(url, callback) {
 	txtFile.onreadystatechange = function() {
 		if (txtFile.readyState != 4) return;  // document is ready to parse.
 		if (txtFile.status != 200 && txtFile.status != 304) return;  // file is found
-		
+				
 		callback(txtFile);
 	}
 	if (txtFile.readyState == 4) return;
 	txtFile.send(null);
 }
+
+var initialTime;
 
 window.onload = function() {
 	readFile("test.lec", getData);
