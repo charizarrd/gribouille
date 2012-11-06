@@ -8,7 +8,7 @@
 
 <input id="b" type="button" value="start" onclick="start()"/>
 <br/>
-<input type="range" min="0" max="4.77" step="0.01" value="0" onChange="chooseT(value)">
+<input id="timeslide" type="range" min="0" max="4.77" step="0.01" value="0" onChange="chooseT(value)">
 
 <span id = "t">0</span><br/>
 <br/><br/>
@@ -96,6 +96,8 @@ function readFile(url, callback) {
 }
 
 var initialTime=0;
+var currentTime;
+var currentI
 
 window.onload = function() {
 	readFile("test.lec", getData);
@@ -106,12 +108,14 @@ window.onload = function() {
 	function start(){
 		initialTime=Date.now(); //gets time in milliseconds since jan 1970
 		setInterval(graphData,1);
+		setInterval(changeSlider,10);
 	}
 	
 	function chooseT(t){
 		document.getElementById("t").innerHTML=(t);
 		initialTime=t*-1000+Date.now();
 		setInterval(graphData,1);
+		setInterval(changeSlider,10);
 	}
 
 	function graphData(){
@@ -142,6 +146,14 @@ window.onload = function() {
 				break;}
 		}
 		
+	}
+	
+	function changeSlider(){
+		if(currentI<4.77){
+			document.getElementById("timeslide").value=(currentI);
+			document.getElementById("t").innerHTML=(Math.round(currentI*100)/100);
+		}
+	
 	}
 
 
