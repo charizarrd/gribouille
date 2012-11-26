@@ -6,3 +6,7 @@ notes
 -slower and not nearly as efficient, but it'll work and we should start using that and just optimize it later
 
 -also work on audio
+
+11/6
+from lili:
+-find max of x and y axis using the data, because right now it's just a number that you set

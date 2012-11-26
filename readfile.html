@@ -82,12 +82,14 @@ function readFile(url, callback) {
 	txtFile.onreadystatechange = function() {
 		if (txtFile.readyState != 4) return;  // document is ready to parse.
 		if (txtFile.status != 200 && txtFile.status != 304) return;  // file is found
-		
+				
 		callback(txtFile);
 	}
 	if (txtFile.readyState == 4) return;
 	txtFile.send(null);
 }
+
+var initialTime;
 
 window.onload = function() {
 	readFile("test.lec", getData);
