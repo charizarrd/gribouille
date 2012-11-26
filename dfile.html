@@ -40,7 +40,7 @@ var xmax=1100;
 var yscale=(c.height)/ymax;
 var xscale=(c.width)/xmax;
 
-var datafile="test.lec";
+var datafile="bounds.lec";
 var imax;	// maximum time value
 
 // updates lines and dataPoints with new file
@@ -136,7 +136,7 @@ var drawD, changeS;
 
 function start(){
 	initialTime=Date.now(); //gets time in milliseconds since jan 1970
-	drawD = setInterval(graphData,1);
+	drawD = setInterval(graphData,10);
 	changeS = setInterval(changeSlider,10);
 }
 	
@@ -150,11 +150,12 @@ var stop=false;
 	function chooseT(t){
 		document.getElementById("t").innerHTML=(t);
 		initialTime=t*-1000+Date.now();
-		drawD = setInterval(graphData,1);
+		drawD = setInterval(graphData,10);
 		changeS = setInterval(changeSlider,10);
 	}
 
 	function graphData(){
+		context.lineCap='round';
 		context.clearRect(0,0,c.width,c.height);
 		currentTime=Date.now(); //gets current time
 		currentI=(currentTime/1000.0)-(initialTime/1000.0) //converts to seconds passed
