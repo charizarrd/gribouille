@@ -96,7 +96,8 @@ function matcher() {
 		dataPoints.push(current);
 	}
 	
-	imax=dataPoints[dataPoints.length-1][2];
+	data=dataPoints[dataPoints.length-1];
+	imax=data[data.length-1][2];
 	document.getElementById("timeslide").max=imax;
 	document.getElementById("test2").innerHTML=dataPoints.length;
 	document.getElementById("test3").innerHTML=dataPoints[0].length;
@@ -131,25 +132,26 @@ function changeFile(x){
 }
 
 //ADDING DRAWING STUFF
+var drawD, changeS;
 
 function start(){
 	initialTime=Date.now(); //gets time in milliseconds since jan 1970
-	var drawD = setInterval(graphData,1);
-	var changeS = setInterval(changeSlider,10);
+	drawD = setInterval(graphData,1);
+	changeS = setInterval(changeSlider,10);
 }
 	
 var stop=false;
 
 	function stopPlay(){
-		alert("NOOooo sigh");
+		//alert("NOOooo sigh");
 		stop=true;
 	}
 	
 	function chooseT(t){
 		document.getElementById("t").innerHTML=(t);
 		initialTime=t*-1000+Date.now();
-		var drawD = setInterval(graphData,1);
-		var changeS = setInterval(changeSlider,10);
+		drawD = setInterval(graphData,1);
+		changeS = setInterval(changeSlider,10);
 	}
 
 	function graphData(){
@@ -178,10 +180,32 @@ var stop=false;
 					context.lineTo(x,ymax*yscale-y);
 					context.stroke();
 				}
+
+			}
+			
+			if (stop){
+				//alert("stop");
+				drawD=clearInterval(drawD);
+				changeS=clearInterval(changeS);
 				
-//				else { 
-					//alert("done " + dataPoints[i][2]+" , " + currentI); 
-//					break;}
+				//draws everything up to this point
+				for(var i=0; i<dataPoints.length; i++){
+					var data = dataPoints[i];
+					context.beginPath();
+					context.moveTo((data[0][0]*xscale),ymax*yscale-data[0][1]*yscale);
+					
+					for (var j = 1; j < data.length; j++) {
+						
+						if (data[j][2] < currentI){
+							var x=data[j][0]*xscale
+							var y=data[j][1]*yscale	
+							context.lineTo(x,ymax*yscale-y);
+							context.stroke();
+						}
+		
+					}
+				}
+				break;
 			}
 		}
 		
