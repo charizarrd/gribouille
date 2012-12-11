@@ -10,3 +10,7 @@ notes
 11/6
 from lili:
 -find max of x and y axis using the data, because right now it's just a number that you set
+
+11/27
+one web address is one lecture (so no choose file)
+(think about what youtube is like)

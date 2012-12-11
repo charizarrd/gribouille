@@ -6,10 +6,7 @@
 <body>
 <canvas id="canvas" width="750" height="750" onclick="" style="border: 1px solid #000000;"></canvas>
 
-<select id="files" onChange="changeFile(this.value)">
-	<option value = "bounds.lec" > bounds.lec</option>
-	<option value = "test.lec" > test.lec </option>
-</select>
+<input type = "file" id = "uploadfile">
 
 <br>
 <input id="b" type="button" value="start" onclick="start()"/>
@@ -43,18 +40,42 @@ var xmax=1100;
 var yscale=(c.height)/ymax;
 var xscale=(c.width)/xmax;
 
-var datafile="bounds.lec"
-
 //var datafile="bounds.lec";
 var imax;	// maximum time value
 
+// reads uploaded file
+function uploadFile(evt) {
+	context.clearRect(0,0,c.width,c.height);
+	drawD=clearInterval(drawD);
+	changeS=clearInterval(changeS);
+
+	var f = evt.target.files[0]
+	document.getElementById("test4").innerHTML = f.name;
+	if (f) {
+		var reader=new FileReader();
+		
+		reader.onload = function(e) { 
+			var contents = e.target.result;
+			lines = contents.split("\n").slice();
+			document.getElementById("test").innerHTML=(lines.length);
+			matcher();
+		}
+		
+		reader.readAsText(f);;
+    }
+	
+	else { 
+      alert("Failed to load file");
+    }
+}
+document.getElementById("uploadfile").addEventListener('change', uploadFile);
 
 // updates lines and dataPoints with new file
-function getData(file) {
+/*function getData(file) {
 	lines = file.responseText.split("\n").slice();
 	matcher();
 //	document.getElementById("test").innerHTML=(dataPoints.length);
-}
+}*/
 
 function matcher() {
 	var current = new Array();
@@ -127,15 +148,10 @@ var initialTime=0;
 var currentTime;
 var currentI;
 
-
+/*
 window.onload = function() {
 	readFile(datafile, getData);
-};
-
-function changeFile(newdata){
-	readFile(newdata, getData);
-	start()
-}
+};*/
 
 //ADDING DRAWING STUFF
 var drawD, changeS;
